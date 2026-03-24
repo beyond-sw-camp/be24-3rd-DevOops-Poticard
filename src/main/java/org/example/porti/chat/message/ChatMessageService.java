@@ -127,15 +127,17 @@ public class ChatMessageService {
     }
 
     @Transactional
-    public Slice<ChatMessageDto.Res> getMessagesPage(Long roomIdx, Pageable pageable) {
-        // 최신순으로 가져와서 DTO로 변환
+    public Slice<ChatMessageDto.Res> getMessagesWithRead(Long roomIdx, Long userIdx, Pageable pageable) {
+        // 1. [핵심] 해당 채팅방에 비관적 락을 걸어 다른 트랜잭션의 접근을 차단
+        ChatRoom room = chatRoomRepository.findByIdWithPessimisticLock(roomIdx)
+                .orElseThrow(() -> new RuntimeException("방을 찾을 수 없습니다."));
+
+        // 2. 읽음 처리 수행 (@Modifying 쿼리 실행)
+        chatMessageRepository.markAsReadByRoomIdxAndNotUserIdx(roomIdx, userIdx);
+
+        // 3. 메시지 목록 조회 및 반환
         return chatMessageRepository.findAllByChatRoomIdxOrderByCreatedAtDesc(roomIdx, pageable)
                 .map(ChatMessageDto.Res::from);
-    }
-
-    @Transactional
-    public void markMessagesAsRead(Long roomIdx, Long userIdx) {
-        chatMessageRepository.markAsReadByRoomIdxAndNotUserIdx(roomIdx, userIdx);
     }
 
     public void sendReadReceipt(Long roomIdx) {

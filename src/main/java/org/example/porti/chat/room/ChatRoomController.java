@@ -60,10 +60,9 @@ public class ChatRoomController {
             @AuthenticationPrincipal AuthUserDetails currentUser,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        chatMessageService.markMessagesAsRead(roomIdx, currentUser.getIdx());
+        Slice<ChatMessageDto.Res> messages = chatMessageService.getMessagesWithRead(roomIdx, currentUser.getIdx(), pageable);
         chatMessageService.sendReadReceipt(roomIdx);
 
-        Slice<ChatMessageDto.Res> messages = chatMessageService.getMessagesPage(roomIdx, pageable);
         return ResponseEntity.ok(BaseResponse.success(messages));
     }
 
@@ -73,10 +72,9 @@ public class ChatRoomController {
             @RequestParam Long testUserIdx,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        chatMessageService.markMessagesAsRead(roomIdx, testUserIdx);
+        Slice<ChatMessageDto.Res> messages = chatMessageService.getMessagesWithRead(roomIdx, testUserIdx, pageable);
         chatMessageService.sendReadReceipt(roomIdx);
 
-        Slice<ChatMessageDto.Res> messages = chatMessageService.getMessagesPage(roomIdx, pageable);
         return ResponseEntity.ok(BaseResponse.success(messages));
     }
 
