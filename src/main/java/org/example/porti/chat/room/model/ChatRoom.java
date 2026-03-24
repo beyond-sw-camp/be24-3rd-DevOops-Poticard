@@ -2,10 +2,10 @@ package org.example.porti.chat.room.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.porti.chat.attachment.model.ChatAttachments;
 import org.example.porti.chat.message.model.ChatMessage;
 import org.example.porti.common.model.BaseEntity;
 import org.example.porti.user.model.User;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
@@ -25,6 +25,7 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(name = "guest_user_idx")
     private User guestUser;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> messages;
 

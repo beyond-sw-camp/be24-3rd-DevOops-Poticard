@@ -3,6 +3,7 @@ package org.example.porti.chat.room;
 import lombok.RequiredArgsConstructor;
 import org.example.porti.chat.message.ChatMessageRepository;
 import org.example.porti.chat.message.model.ChatMessage;
+import org.example.porti.chat.message.model.ChatMessageDto;
 import org.example.porti.chat.room.model.ChatRoom;
 import org.example.porti.chat.room.model.ChatRoomDto;
 import org.example.porti.user.UserRepository;
@@ -13,9 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Pageable;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,13 +68,25 @@ public class ChatRoomService {
     public Slice<ChatRoomDto.ListRes> list(Long userIdx, Pageable pageable) {
         Slice<ChatRoom> chatRoomSlice = chatRoomRepository.findAllByHostUserIdxOrGuestUserIdx(userIdx, userIdx, pageable);
 
+        List<Long> roomIds = chatRoomSlice.getContent().stream()
+                .map(ChatRoom::getIdx)
+                .toList();
+
+        List<ChatMessageDto.UnreadCount> unreadCountsList = chatMessageRepository.countUnreadByRoomIds(roomIds, userIdx);
+
+        Map<Long, Long> unreadCountsMap = unreadCountsList.stream()
+                .collect(Collectors.toMap(
+                        ChatMessageDto.UnreadCount::getRoomIdx,
+                        ChatMessageDto.UnreadCount::getCount
+                ));
+
         return chatRoomSlice.map(room -> {
             Optional<ChatMessage> lastContents = chatMessageRepository.findFirstByChatRoomIdxOrderByCreatedAtDesc(room.getIdx());
 
             String lastMessage = lastContents.map(ChatMessage::getContents).orElse("채팅을 시작하세요");
             Date lastTime = lastContents.map(ChatMessage::getCreatedAt).orElse(null);
 
-            long unreadCount = chatMessageRepository.countByChatRoomIdxAndUserIdxNotAndIsReadFalse(room.getIdx(), userIdx);
+            long unreadCount = unreadCountsMap.getOrDefault(room.getIdx(), 0L);
             return ChatRoomDto.ListRes.from(room, userIdx, lastMessage, lastTime, unreadCount);
         });
     }

@@ -61,4 +61,9 @@ public class ChatMessageDto {
                     .build();
         }
     }
+
+    public interface UnreadCount {
+        Long getRoomIdx();
+        Long getCount();
+    }
 }
