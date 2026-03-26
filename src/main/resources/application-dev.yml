@@ -1,3 +1,7 @@
+server:
+  frontUrl: ${FRONT_URL}
+  backUrl: ${BACK_URL}
+
 jdbc:
   datasource:
     proxy:
@@ -65,7 +69,7 @@ spring:
         access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_KEY}
       s3:
-        bucket: be24-hun # 본인 S3 버킷 이름
+        bucket: ${AWS_BUCKET_NAME}
       region:
         static: ap-northeast-2
   security:
@@ -95,7 +99,7 @@ spring:
             user-name-attribute: id
 
   application:
-    name: porti
+    name: poticard
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: ${DB_URL}

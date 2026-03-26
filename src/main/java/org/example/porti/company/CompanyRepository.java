@@ -12,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -31,7 +30,22 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     @Query("SELECT COALESCE(SUM(c.applicants), 0) FROM Company c WHERE c.user.idx = :userIdx")
     int sumApplicantsByUserIdx(@Param("userIdx") Long userIdx);
 
-    List<Company> findByPublicOpenTrueAndStatusOrderByIdxDesc(String status);
+    @Query("""
+            SELECT c
+            FROM Company c
+            LEFT JOIN FETCH c.user u
+            WHERE c.publicOpen = true
+            ORDER BY c.idx DESC
+            """)
+    List<Company> findPublicOpenListOrderByIdxDesc();
+
+    @Query("""
+            SELECT c
+            FROM Company c
+            LEFT JOIN FETCH c.user u
+            WHERE c.idx = :idx
+            """)
+    Optional<Company> findByIdWithUser(@Param("idx") Long idx);
 
     List<Company> findByUserIdxOrderByIdxDesc(Long userIdx);
 }
