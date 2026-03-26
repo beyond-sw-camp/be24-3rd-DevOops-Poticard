@@ -1,0 +1,7 @@
+.env
+*.p12
+*.jks
+bin/
+build/
+!build/libs/*.jar
+.git

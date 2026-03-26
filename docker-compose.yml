@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  db:
+    image: mariadb:latest
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD=qwer1234
+      - MARIADB_DATABASE=poticard
+  backend:
+    image: seungwoo0128/backend:0.1 # 본인 백엔드 이미지
+    ports:
+      - 8080:8080
+    environment:
+      - DB_URL=jdbc:mariadb://db:3306/poticard
+      - DB_USER=root
+      - DB_PASS=qwer1234
+    depends_on:
+      - db
