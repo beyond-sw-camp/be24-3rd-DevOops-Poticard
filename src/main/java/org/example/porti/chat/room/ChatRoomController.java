@@ -76,6 +76,7 @@ public class ChatRoomController {
         return ResponseEntity.ok(BaseResponse.success(responses));
     }
 
+    @Operation(summary = "채팅방 목록 조회 테스트 ", hidden = true)
     @GetMapping("/test/list")
     public ResponseEntity testList(
             @RequestParam(name = "testUserIdx") Long testUserIdx,
@@ -108,6 +109,7 @@ public class ChatRoomController {
         return ResponseEntity.ok(BaseResponse.success(messages));
     }
 
+    @Operation(summary = "메시지 내역 조회 테스트 ", hidden = true)
     @GetMapping("/{roomIdx}/messages/test")
     public ResponseEntity getMessages(
             @PathVariable Long roomIdx,
